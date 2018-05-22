@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.swordfish.mq.core.mq.mapper.QueueMessageMapper">
+		<resultMap id="QueueMessageMap" type="cn.com.swordfish.mq.core.mq.domain.QueueMessageEvent">
+				<id column="id" property="id" />
+				<result column="routing_key" property="routingKey" />
+				<result column="serialize_message" property="serializeMessage" />
+				<result column="message_level" property="messageLevel" />
+				<result column="unique_key" property="uniqueKey" />
+				<result column="unique_key" property="uniqueKey" />
+				<result column="exchange" property="exchange" />
+		</resultMap>
+		<sql id="Base_Column_List">
+				id, routing_key, serialize_message, message_level, sendtime, unique_key, retrytimes, exchange
+		</sql>
+		<select id="getQueueMessage" resultMap="QueueMessageMap" parameterType="cn.com.swordfish.mq.core.mq.domain.QueueMessageEvent">
+				select
+				<include refid="Base_Column_List" />
+				from ${mq.schema}.msg_event_list
+				where 1=1
+				<if test="routingKey != null and routingKey != ''">
+						AND routing_key = #{routingKey,jdbcType=VARCHAR}
+				</if>
+				<if test="sendtime != null ">
+						AND #{sendtime,jdbcType=TIMESTAMP} > sendtime
+				</if>
+				<if test="createtime != null ">
+						AND #{createtime,jdbcType=TIMESTAMP} > createtime 
+				</if>
+				<if test="uniqueKey != null and uniqueKey != ''">
+						AND unique_key = #{uniqueKey,jdbcType=VARCHAR}
+				</if>
+				<if test="retrytimes != null and retrytimes != ''">
+						AND retrytimes = #{retrytimes,jdbcType=VARCHAR}
+				</if>
+				<if test="exchange != null and exchange != ''">
+						AND exchange = #{exchange,jdbcType=VARCHAR}
+				</if>
+		</select>
+		<delete id="deleteQueueMessage" parameterType="cn.com.swordfish.mq.core.mq.domain.QueueMessageEvent">
+				delete from ${mq.schema}.msg_event_list
+				<trim prefix="WHERE" prefixOverrides="AND" suffixOverrides="AND">
+						<if test="routingKey != null and routingKey != ''">
+								AND routing_key = #{routingKey,jdbcType=VARCHAR}
+						</if>
+						<if test="sendtime != null ">
+								AND #{sendtime,jdbcType=TIMESTAMP} > sendtime
+						</if>
+						<if test="createtime != null ">
+								AND #{createtime,jdbcType=TIMESTAMP} > createtime
+						</if>
+						<if test="uniqueKey != null and uniqueKey != ''">
+								AND unique_key = #{uniqueKey,jdbcType=VARCHAR}
+						</if>
+				</trim>
+		</delete>
+		<insert id="saveQueueMessage" parameterType="cn.com.swordfish.mq.core.mq.domain.QueueMessageEvent">
+				INSERT INTO ${mq.schema}.msg_event_list
+				<trim prefix="(" suffix=")" suffixOverrides=",">
+						<if test="routingKey != null">
+								routing_key,
+						</if>
+						<if test="uniqueKey != null">
+								unique_key,
+						</if>
+						<if test="serializeMessage != null">
+								serialize_message,
+						</if>
+						<if test="messageLevel != null">
+								message_level,
+						</if>
+						<if test="sendtime != null">
+								sendtime,
+						</if>
+						<if test="retrytimes != null">
+								retrytimes,
+						</if>
+						<if test="exchange != null">
+								exchange,
+						</if>
+				</trim>
+				<trim prefix="values (" suffix=")" suffixOverrides=",">
+						<if test="routingKey != null">
+								#{routingKey,jdbcType=VARCHAR},
+						</if>
+						<if test="uniqueKey != null">
+								#{uniqueKey,jdbcType=VARCHAR},
+						</if>
+						<if test="serializeMessage != null">
+								#{serializeMessage,jdbcType= BLOB},
+						</if>
+						<if test="messageLevel != null">
+								#{messageLevel,jdbcType=INTEGER},
+						</if>
+						<if test="sendtime != null">
+								#{sendtime,jdbcType=TIMESTAMP},
+						</if>
+						<if test="retrytimes != null">
+								#{retrytimes,jdbcType=INTEGER},
+						</if>
+						<if test="exchange != null">
+								#{exchange,jdbcType=INTEGER},
+						</if>
+				</trim>
+		</insert>
+
+		<insert id="deliverFailed" parameterType="cn.com.swordfish.mq.core.mq.domain.QueueMessageEvent">
+				insert into ${mq.schema}.msg_failed_list (serialize_message,
+				routing_key, message_level, sendtime, unique_key, retrytimes, exchange)
+				values (#{serializeMessage,jdbcType=BLOB}, #{routingKey,jdbcType=VARCHAR}, #{messageLevel,jdbcType=INTEGER},
+				#{sendtime,jdbcType=TIMESTAMP}, #{uniqueKey,jdbcType=VARCHAR}, #{retrytimes,jdbcType=INTEGER}, #{exchange,
+				jdbcType=VARCHAR})
+		</insert>
+
+		<delete id="deleteFailed" parameterType="java.lang.String">
+				delete from ${mq.schema}.msg_failed_list
+				where unique_key =
+				#{uniqueKey,jdbcType=VARCHAR}
+		</delete>
+
+		<!--删除告警列表warn -->
+		<delete id="deleteWarn" parameterType="cn.com.swordfish.mq.core.mq.domain.QueueMessageEvent">
+				delete from ${mq.schema}.msg_warn_list
+				<if test="uniqueKey != null and uniqueKey != ''">
+						where unique_key = #{uniqueKey,jdbcType=VARCHAR}
+				</if>
+		</delete>
+
+
+		<select id="getFailedMsg" resultMap="QueueMessageMap" parameterType="cn.com.swordfish.mq.core.mq.domain.QueueMessageEvent">
+				select id, routing_key, serialize_message, message_level, sendtime, retrytimes, unique_key, exchange
+				from
+				${mq.schema}.msg_failed_list
+				where 1=1
+				<if test="routingKey != null and routingKey != ''">
+						AND routing_key = #{routingKey,jdbcType=VARCHAR}
+				</if>
+				<if test="messageLevel != null and messageLevel != ''">
+						AND message_level = #{messageLevel,jdbcType=VARCHAR}
+				</if>
+				<if test="sendtime != null ">
+						AND #{sendtime,jdbcType=TIMESTAMP} > sendtime
+				</if>
+				<if test="exchange != null and exchange != ''">
+						AND exchange = #{exchange,jdbcType=VARCHAR}
+				</if>
+				FOR UPDATE
+		</select>
+
+		<select id="getWarnMsg" resultMap="QueueMessageMap" parameterType="cn.com.swordfish.mq.core.mq.domain.QueueMessageEvent">
+				select id, routing_key, serialize_message, message_level, sendtime, retrytimes, unique_key, exchange
+				from
+				${mq.schema}.msg_warn_list
+				where 1=1
+				<if test="routingKey != null and routingKey != ''">
+						AND routing_key = #{routingKey,jdbcType=VARCHAR}
+				</if>
+				<if test="messageLevel != null and messageLevel != ''">
+						AND message_level = #{messageLevel,jdbcType=VARCHAR}
+				</if>
+				<if test="sendtime != null ">
+						AND #{sendtime,jdbcType=TIMESTAMP} > sendtime
+				</if>
+				<if test="exchange != null and exchange != ''">
+						AND exchange = #{exchange,jdbcType=VARCHAR}
+				</if>
+				FOR UPDATE
+		</select>
+
+		<insert id="deliverWarn" parameterType="cn.com.swordfish.mq.core.mq.domain.QueueMessageEvent">
+				insert into ${mq.schema}.msg_warn_list (serialize_message, routing_key,
+				message_level, sendtime, unique_key, retrytimes, createtime, exchange)
+				values (#{serializeMessage,jdbcType= BLOB}, #{routingKey,jdbcType=VARCHAR}, #{messageLevel,jdbcType=INTEGER},
+				#{sendtime,jdbcType=TIMESTAMP}, #{uniqueKey,jdbcType=VARCHAR}, #{retrytimes,jdbcType=INTEGER},
+				#{createtime,jdbcType=TIMESTAMP}, #{exchange,jdbcType=VARCHAR})
+		</insert>
+
+		<select id="moveEventToFailed" parameterType="java.lang.String">
+				INSERT INTO
+				${mq.schema}.msg_failed_list(unique_key,serialize_message,message_level,retrytimes,sendtime,routing_key,exchange)
+				SELECT unique_key,serialize_message,message_level,retrytimes,sendtime,routing_key,exchange FROM
+				${mq.schema}.msg_event_list WHERE unique_key = #{uniqueKey,jdbcType=VARCHAR}
+		</select>
+</mapper>

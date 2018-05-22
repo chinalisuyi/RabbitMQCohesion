@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="120 seconds">
+		<appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
+				<encoder>
+						<pattern>%d [%t] %-5p [%c] - %m%n</pattern>
+				</encoder>
+		</appender>
+		<appender name="R" class="ch.qos.logback.core.rolling.RollingFileAppender">
+				<!--See http://logback.qos.ch/manual/appenders.html#RollingFileAppender -->
+				<!--and http://logback.qos.ch/manual/appenders.html#TimeBasedRollingPolicy -->
+				<!--for further documentation -->
+				<File>${catalina.home}/logs/pgs.log</File>
+				<encoder>
+						<pattern>%d %p [%c] - %m%n</pattern>
+				</encoder>
+				<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+						<fileNamePattern>${catalina.home}/logs/pgs.%d{yyyy-MM-dd}.log</fileNamePattern>
+				</rollingPolicy>
+		</appender>
+		<appender name="initAppender" class="ch.qos.logback.core.FileAppender">
+				<file>${catalina.home}/logs/pgsInit.log</file>
+				<encoder>
+						<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{5} - %msg%n</pattern>
+				</encoder>
+		</appender>
+		<logger name="org.apache.shiro.mgt.DefaultSecurityManager" level="debug" additivity="false">
+				<appender-ref ref="Console" />
+		</logger>
+		<logger name="cn.com.jldata.pgs.payment.controller.SaleOrderController" level="info" additivity="false">
+				<appender-ref ref="Console" />
+				<appender-ref ref="R" />
+		</logger>
+		<logger name="cn.com.jldata.pgs.sale.service.impl.SaleOrderProblemServiceImpl" level="info" additivity="false">
+				<appender-ref ref="Console" />
+				<appender-ref ref="R" />
+		</logger>
+		<logger name="cn.com.jldata.pgs.store.mobile.controller.StoreAccountMobileController" level="info" additivity="false">
+				<appender-ref ref="Console" />
+				<appender-ref ref="R" />
+		</logger>
+		<logger name="cn.com.jldata.pgs.sale.mobile.controller.SaleOrderSumMobileController" level="info" additivity="false">
+				<appender-ref ref="Console" />
+				<appender-ref ref="R" />
+		</logger>
+		<logger name="cn.com.jldata.pgs.payment.service.impl.SaleOrderServiceImpl" level="info" additivity="false">
+				<appender-ref ref="Console" />
+				<appender-ref ref="R" />
+		</logger>
+		<logger name="cn.com.jldata.pgs.init.service.impl.InitServiceImpl" level="info" additivity="false">
+				<appender-ref ref="Console" />
+				<appender-ref ref="initAppender" />
+		</logger>
+		<logger name="mybatis.mapper.*" level="${maven.logback.loglevel.default}" additivity="false">
+				<appender-ref ref="Console" />
+		</logger>
+		<root level="info">
+				<appender-ref ref="Console" />
+				<appender-ref ref="R" />
+		</root>
+</configuration>
