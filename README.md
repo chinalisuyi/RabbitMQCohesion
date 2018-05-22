@@ -16,7 +16,7 @@ A annotations project for RabbitMQ. 对MQ的一个封装，自定义了Spring注
 ## 2.1、生产端
 #### 2.1.1、生产端java代码(ProducerTest)
 ```java
-package cn.com.jldata.mq.example;
+package cn.com.swordfish.mq.example;
 
 import java.util.Date;
 import java.util.concurrent.ExecutorService;
@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import cn.com.jldata.mq.example.domain.UserDetail;
+import cn.com.swordfish.mq.example.domain.UserDetail;
 import cn.com.swordfish.mq.core.mq.service.MessageEventSender;
 import cn.com.swordfish.mq.core.mq.service.MessageEventService;
 import cn.com.swordfish.mq.core.util.PinyinUtil;
@@ -146,7 +146,7 @@ eventSender.sendMessage(eventService.buildAndSaveEvent(event));
 ### 2.2、消费端
 #### 2.2.1、消费端代码
 ```java
-package cn.com.jldata.mq.example.listener;
+package cn.com.swordfish.mq.example.listener;
 
 import java.util.concurrent.Future;
 
@@ -157,9 +157,9 @@ import org.springframework.amqp.rabbit.annotation.Exchange;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import cn.com.jldata.mq.example.domain.MailParamInfo;
-import cn.com.jldata.mq.example.domain.UserDetail;
-import cn.com.jldata.mq.example.service.MailSenderService;
+import cn.com.swordfish.mq.example.domain.MailParamInfo;
+import cn.com.swordfish.mq.example.domain.UserDetail;
+import cn.com.swordfish.mq.example.service.MailSenderService;
 import cn.com.swordfish.mq.core.mq.core.annotation.QueueCustom;
 import cn.com.swordfish.mq.core.mq.core.annotation.QueueCustomBinding;
 import cn.com.swordfish.mq.core.mq.core.annotation.QueueMessageHandler;
@@ -271,7 +271,7 @@ public class MailListener {
 ```xml
 <!-- 注解探测器 ， 在JUnit测试的时候需要 -->
 <context:component-scan
-	base-package="cn.com.swordfish.mq.core.captcha.sms,cn.com.swordfish.mq.core.captcha.image,cn.com.swordfish.mq.core.mq,cn.com.jldata.mq.example">
+	base-package="cn.com.swordfish.mq.core.captcha.sms,cn.com.swordfish.mq.core.captcha.image,cn.com.swordfish.mq.core.mq,cn.com.swordfish.mq.example">
 	<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller" />
 </context:component-scan>
 ```
@@ -375,9 +375,3 @@ public void test() {
 }
 
 ```
-
-## 7、example项目git地址
-
-git@192.168.50.20:suyi/pgs-mq-example.git
-
-http://192.168.50.20:9988/suyi/pgs-mq-example
